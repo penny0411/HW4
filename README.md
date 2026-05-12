@@ -11,10 +11,23 @@ python demo/carema.py
 python demo/test.py
 ```
 
-### 3. 執行實時手勢辨識 (Real-time Recognition - 推薦)
+### 3. 手勢辨識 Demo (三種版本)
+
+#### A. MediaPipe 版本 (推薦：最穩定)
 ```bash
-python demo/gesture_recognition.py
+python demo/gesture_recognition_mediapipe.py
 ```
+
+#### B. SVM 版本 (原始像素分類)
+```bash
+python demo/gesture_recognition_svm.py
+```
+
+#### C. MobileNet 版本 (CNN 模型)
+```bash
+python demo/gesture_recognition_MobileNet.py
+```
+*(註：MobileNet 版本需先執行 train/train_mobilenet.py 產生模型)*
 
 ---
 
