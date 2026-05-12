@@ -48,3 +48,23 @@
 * 想要「超簡單實作」：維持 **Flatten + SVM/KNN**。
 
 如果你之後想做物件偵測（即時框框辨識），可以考慮 **YOLO Tiny** 或 **SSD MobileNet**。
+
+---
+
+# 今日開發進度總結 (Task Summary)
+
+1.  **倉庫遷移與同步**：
+    - 從原始倉庫複製代碼，並成功 PUSH 到新的個人倉庫 `https://github.com/penny0411/HW4`。
+2.  **模型優化與重新訓練**：
+    - 針對原本模型「只會辨識 Paper」的問題，使用 2520 張平衡樣本重新訓練了 SVM 模型，將測試集準確率提升至 **68%**。
+    - 修復了 Windows 系統上的 `UnicodeEncodeError` 編碼錯誤。
+3.  **新增 MediaPipe 穩定版本**：
+    - 實作了 `gesture_recognition_mediapipe.py`，改用 21 個手部關節點進行邏輯辨識。
+    - 解決了背景光線干擾問題，並新增了 **"No hand" (無手)** 的即時狀態顯示。
+4.  **MobileNetV2 整合**：
+    - 為了符合報告要求，新增了 MobileNetV2 的訓練腳本 (`train_mobilenet.py`) 與辨識 Demo (`gesture_recognition_MobileNet.py`)。
+5.  **專案結構整理**：
+    - 將 `demo/` 資料夾整理為三種不同的辨識方案 (SVM, MediaPipe, MobileNet)。
+    - 更新 `README.md`，在最上方加入「快速開始」指令，方便使用者直接執行。
+6.  **環境教學**：
+    - 說明了 Python 版本對 TensorFlow 的影響，以及如何建立虛擬環境 (venv) 來管理專案。
