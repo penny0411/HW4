@@ -53,7 +53,7 @@ def main():
     for layer in base_model.layers:
         layer.trainable = False
 
-    model.compile(optimizer='adam', loss='categorical_with_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
     # 4. 開始訓練
     print("Starting Training with MobileNetV2...")
