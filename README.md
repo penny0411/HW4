@@ -25,8 +25,19 @@ https://www.raspberrypi.com/software/
 
 https://github.com/BiBaIsAFish/RSP_demo
 
-1.	下載 github
-2.	Demo carema
+1. 下載 github
+2. 安裝環境依賴 (建議在虛擬環境中執行):
+   ```bash
+   pip install -r demo/requirements.txt
+   ```
+3. 執行手勢辨識 Demo:
+   ```bash
+   python demo/gesture_recognition.py
+   ```
+4. 原有的攝像頭測試:
+   ```bash
+   python demo/carema.py
+   ```
     ![](17903.jpg)
     ![](17904.jpg)
 
