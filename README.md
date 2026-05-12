@@ -1,3 +1,23 @@
+# 快速開始 (Quick Start)
+
+### 1. 執行攝影機測試 (Camera Test)
+```bash
+python demo/carema.py
+```
+*(註：原專案檔名為 carema.py)*
+
+### 2. 執行模型測試 (Model Test)
+```bash
+python demo/test.py
+```
+
+### 3. 執行實時手勢辨識 (Real-time Recognition - 推薦)
+```bash
+python demo/gesture_recognition.py
+```
+
+---
+
 ## 刷機
 
 https://www.raspberrypi.com/software/
