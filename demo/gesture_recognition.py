@@ -11,7 +11,7 @@ def main():
     model_path = os.path.join(script_dir, model_name)
 
     if not os.path.exists(model_path):
-        print(f"❌ 錯誤：找不到模型檔案 '{model_path}'")
+        print(f"Error: Cannot find model file '{model_path}'")
         return
 
     # 2. 載入模型
@@ -29,10 +29,10 @@ def main():
     # 3. 開啟攝像頭
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        print("❌ 錯誤：無法開啟攝像頭")
+        print("Error: Cannot open camera")
         return
 
-    print("🎥 攝像頭啟動成功！按下 'q' 鍵退出。")
+    print("Camera started! Press 'q' to quit.")
 
     while True:
         ret, frame = cap.read()
