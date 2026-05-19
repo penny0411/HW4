@@ -1,58 +1,33 @@
 import cv2
 import mediapipe as mp
 import math
+import threading
+import time
 
 def get_distance(p1, p2):
     return math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2)
 
-def main():
-    # 1. 初始化 MediaPipe Hands
-    mp_hands = mp.solutions.hands
-    hands = mp_hands.Hands(
-        static_image_mode=False,
-        max_num_hands=1,
-        min_detection_confidence=0.7,
-        min_tracking_confidence=0.5
-    )
-    mp_draw = mp.solutions.drawing_utils
+# 全域變數用於執行緒間溝通
+latest_frame = None
+latest_result = ("Initializing...", (0, 255, 0))
+latest_landmarks = None
+running = True
 
-    # 2. 開開啟攝像頭
-    cap = cv2.VideoCapture(0)
-    # 設定攝像頭解析度 (降低解析度可提升效能)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-    if not cap.isOpened():
-        print("Error: Cannot open camera")
-        return
-
-    print("MediaPipe Camera started! Press 'q' to quit.")
-
-    frame_count = 0
-    gesture = "Initializing..."
-    color = (0, 255, 0)
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # 鏡像翻轉
-        frame = cv2.flip(frame, 1)
-        h, w, c = frame.shape
-
-        # 每 2 幀處理一次以減少延遲
-        if frame_count % 2 == 0:
-            # 轉換顏色空間為 RGB (MediaPipe 需要)
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+def mediapipe_worker(hands, mp_draw, mp_hands):
+    global latest_frame, latest_result, latest_landmarks, running
+    while running:
+        if latest_frame is not None:
+            # 複製目前的影像進行處理
+            img_to_proc = latest_frame.copy()
+            rgb_frame = cv2.cvtColor(img_to_proc, cv2.COLOR_BGR2RGB)
             results = hands.process(rgb_frame)
 
             gesture = "Error (No hand)"
+            landmarks = None
 
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
-                    # 繪制手部關節
-                    mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
+                    landmarks = hand_landmarks
                     # 判斷手指是否伸展
                     finger_tips = [8, 12, 16, 20]
                     finger_pips = [6, 10, 14, 18]
@@ -83,17 +58,65 @@ def main():
                         gesture = "Error (Unknown)"
 
             color = (0, 0, 255) if "Error" in gesture else (0, 255, 0)
+            latest_result = (gesture, color)
+            latest_landmarks = landmarks
+        
+        time.sleep(0.01)
 
-        frame_count += 1
+def main():
+    global latest_frame, latest_result, latest_landmarks, running
+    
+    # 1. 初始化 MediaPipe Hands
+    mp_hands = mp.solutions.hands
+    hands = mp_hands.Hands(
+        static_image_mode=False,
+        max_num_hands=1,
+        min_detection_confidence=0.7,
+        min_tracking_confidence=0.5
+    )
+    mp_draw = mp.solutions.drawing_utils
+
+    # 2. 開啟攝像頭
+    cap = cv2.VideoCapture(0)
+    # 設定較低的解析度以提升效能
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    
+    if not cap.isOpened():
+        print("Error: Cannot open camera")
+        return
+
+    # 啟動辨識執行緒
+    thread = threading.Thread(target=mediapipe_worker, args=(hands, mp_draw, mp_hands))
+    thread.daemon = True
+    thread.start()
+
+    print("MediaPipe Threaded Camera started! Press 'q' to quit.")
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # 鏡像翻轉
+        frame = cv2.flip(frame, 1)
+        
+        # 更新全域變數
+        latest_frame = frame
+
+        # 取得最新結果與關節點
+        gesture, color = latest_result
+        if latest_landmarks:
+            mp_draw.draw_landmarks(frame, latest_landmarks, mp_hands.HAND_CONNECTIONS)
 
         # 顯示結果
-        color = (0, 0, 255) if "Error" in gesture else (0, 255, 0)
-        cv2.putText(frame, f"Status: {gesture}", (50, 50), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3)
+        cv2.putText(frame, f"Status: {gesture}", (20, 40), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
         
-        cv2.imshow("MediaPipe Gesture Recognition", frame)
+        cv2.imshow("MediaPipe Threaded (320x240)", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            running = False
             break
 
     cap.release()
