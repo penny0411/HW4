@@ -68,3 +68,18 @@
     - 更新 `README.md`，在最上方加入「快速開始」指令，方便使用者直接執行。
 6.  **環境教學**：
     - 說明了 Python 版本對 TensorFlow 的影響，以及如何建立虛擬環境 (venv) 來管理專案。
+
+---
+
+# 2026-05-19 開發進度總結 (Task Summary)
+
+1.  **錯誤辨識與狀態顯示 (Error Detection)**：
+    - **MobileNet**：加入了「信心門檻 (Confidence Threshold = 0.8)」。若辨識機率過低或畫面上沒有手，會即時顯示紅色的 **"Error (Low Confidence)"**。
+    - **MediaPipe**：統一了錯誤顯示邏輯，將原本的 "No hand" 或 "Unknown" 改為紅色的 **"Error"** 標籤，讓使用者能清楚知道目前處於無效辨識狀態。
+2.  **效能優化 (Lag & Latency)**：
+    - **跳幀處理 (Frame Skipping)**：實作了跳幀偵測邏輯（MobileNet 每 3 幀預測一次、MediaPipe 每 2 幀處理一次），大幅減少 CPU 計算量，解決了即時畫面卡頓的問題。
+    - **解析度降低**：將攝像頭解析度強制設定在 **640x480**，平衡了影像品質與推論速度。
+3.  **模型重新訓練 (MobileNetV2 Retraining)**：
+    - 成功克服環境限制，在 **Python 3.13** 環境下完成 MobileNetV2 的重新訓練，並更新了 demo 使用的 `.h5` 模型檔案。
+4.  **GitHub 自動化同步**：
+    - 所有的程式優化與重新訓練後的模型檔案，皆已成功推送到 `https://github.com/penny0411/HW4` 儲存庫中。
