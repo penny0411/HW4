@@ -28,34 +28,51 @@ def mediapipe_worker(hands, mp_draw, mp_hands):
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
                     landmarks = hand_landmarks
-                    # 判斷手指是否伸展
+                    wrist = hand_landmarks.landmark[0]
+                    mcp_middle = hand_landmarks.landmark[9]
+                    
+                    # 1. 計算手掌大小作為基準 (腕部到中指根部)
+                    hand_size = get_distance(wrist, mcp_middle)
+                    if hand_size == 0: hand_size = 0.1
+                    
+                    # 2. 判斷手指是否伸展 (距離基準)
+                    # 提示：食指(8), 中指(12), 無名指(16), 小指(20)
                     finger_tips = [8, 12, 16, 20]
                     finger_pips = [6, 10, 14, 18]
-                    wrist = hand_landmarks.landmark[0]
                     
-                    up_count = 0
+                    up_states = []
                     for tip, pip in zip(finger_tips, finger_pips):
                         dist_tip = get_distance(hand_landmarks.landmark[tip], wrist)
                         dist_pip = get_distance(hand_landmarks.landmark[pip], wrist)
-                        if dist_tip > dist_pip:
-                            up_count += 1
+                        # 判定為伸出的條件：指尖距離腕部明顯大於第二關節
+                        up_states.append(dist_tip > dist_pip * 1.1)
                     
+                    up_count = sum(up_states)
+                    
+                    # 3. 根據伸出數量初步分類
                     if up_count == 0:
                         gesture = "Rock"
                     elif up_count == 2:
-                        dist_index = get_distance(hand_landmarks.landmark[8], wrist)
-                        dist_middle = get_distance(hand_landmarks.landmark[12], wrist)
-                        dist_ring = get_distance(hand_landmarks.landmark[16], wrist)
-                        if dist_index > get_distance(hand_landmarks.landmark[6], wrist) and \
-                           dist_middle > get_distance(hand_landmarks.landmark[10], wrist) and \
-                           dist_ring < get_distance(hand_landmarks.landmark[14], wrist):
-                            gesture = "Scissors"
+                        # 4. 指縫偵測 (V-Shape Check for Scissors)
+                        # 檢查食指(8)與中指(12)是否伸出，且兩者間距足夠
+                        if up_states[0] and up_states[1]: # 食指與中指伸出
+                            index_tip = hand_landmarks.landmark[8]
+                            middle_tip = hand_landmarks.landmark[12]
+                            tip_gap = get_distance(index_tip, middle_tip)
+                            
+                            # 指縫與手長的比例 (通常 V 型大於 0.4)
+                            gap_ratio = tip_gap / hand_size
+                            if gap_ratio > 0.45:
+                                gesture = "Scissors"
+                            else:
+                                gesture = "Error (Squeezed Scissors)"
                         else:
-                            gesture = "Error (Unknown)"
+                            gesture = "Error (Invalid Fingers)"
                     elif up_count >= 4:
+                        # 5. 布的指縫偵測 (可選：檢查是否五指張開)
                         gesture = "Paper"
                     else:
-                        gesture = "Error (Unknown)"
+                        gesture = f"Error ({up_count} fingers)"
 
             color = (0, 0, 255) if "Error" in gesture else (0, 255, 0)
             latest_result = (gesture, color)
