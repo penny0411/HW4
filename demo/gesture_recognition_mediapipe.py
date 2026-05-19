@@ -49,30 +49,35 @@ def mediapipe_worker(hands, mp_draw, mp_hands):
                     
                     up_count = sum(up_states)
                     
-                    # 3. 根據伸出數量初步分類
-                    if up_count == 0:
+                    # 3. 檢查所有相鄰伸出手指之間的「指縫」
+                    # 如果有任何兩根相鄰的伸出手指太靠近，則視為不正視的手勢 (Error)
+                    gap_error = False
+                    for i in range(len(up_states) - 1):
+                        if up_states[i] and up_states[i+1]: # 兩根相鄰的手指都伸出
+                            idx1, idx2 = finger_tips[i], finger_tips[i+1]
+                            dist = get_distance(hand_landmarks.landmark[idx1], hand_landmarks.landmark[idx2])
+                            # 如果指縫比手掌大小的 0.4 倍還小，視為擠在一起
+                            if dist / hand_size < 0.4:
+                                gap_error = True
+                                break
+
+                    # 4. 嚴格組合判定
+                    if gap_error:
+                        gesture = "Error (Gaps too small)"
+                    elif up_count == 0:
                         gesture = "Rock"
                     elif up_count == 2:
-                        # 4. 指縫偵測 (V-Shape Check for Scissors)
-                        # 檢查食指(8)與中指(12)是否伸出，且兩者間距足夠
-                        if up_states[0] and up_states[1]: # 食指與中指伸出
-                            index_tip = hand_landmarks.landmark[8]
-                            middle_tip = hand_landmarks.landmark[12]
-                            tip_gap = get_distance(index_tip, middle_tip)
-                            
-                            # 指縫與手長的比例 (通常 V 型大於 0.4)
-                            gap_ratio = tip_gap / hand_size
-                            if gap_ratio > 0.45:
-                                gesture = "Scissors"
-                            else:
-                                gesture = "Error (Squeezed Scissors)"
+                        # 嚴格要求：必須只有食指(0)與中指(1)伸出
+                        if up_states[0] and up_states[1]:
+                            gesture = "Scissors"
                         else:
-                            gesture = "Error (Invalid Fingers)"
+                            gesture = "Error (Invalid 2-finger combo)"
                     elif up_count >= 4:
-                        # 5. 布的指縫偵測 (可選：檢查是否五指張開)
+                        # 要求四指或五指均伸出且有指縫 (gaps 已在上方檢查)
                         gesture = "Paper"
                     else:
-                        gesture = f"Error ({up_count} fingers)"
+                        # 包含 user 提到的 1,3,4 (up_count=3) 以及 1 (up_count=1) 等情況
+                        gesture = f"Error (Invalid combo: {up_count} fingers)"
 
             color = (0, 0, 255) if "Error" in gesture else (0, 255, 0)
             latest_result = (gesture, color)
