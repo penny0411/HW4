@@ -73,13 +73,10 @@
 
 # 2026-05-19 開發進度總結 (Task Summary)
 
-1.  **錯誤辨識與狀態顯示 (Error Detection)**：
-    - **MobileNet**：加入了「信心門檻 (Confidence Threshold = 0.8)」。若辨識機率過低或畫面上沒有手，會即時顯示紅色的 **"Error (Low Confidence)"**。
-    - **MediaPipe**：統一了錯誤顯示邏輯，將原本的 "No hand" 或 "Unknown" 改為紅色的 **"Error"** 標籤，讓使用者能清楚知道目前處於無效辨識狀態。
+1.  **混合型辨識方案 (Hybrid Integration)**：
+    - **偵測 + 分類 (Detection then Classification)**：結合了 MediaPipe 的手部偵測與 MobileNetV2 的手勢分類。
+    - **自動裁切 (Auto-Cropping)**：程式現在會先找出手的「邊界框 (Bounding Box)」，並將畫面裁切至該範圍後再送入模型。這大幅提升了辨識準確率，並能有效過濾背景干擾。
 2.  **效能極致優化 (Multi-threading)**：
-    - **多執行緒架構 (Threading)**：將影像顯示與模型辨識拆分。現在鏡頭畫面能以全速 (30 FPS) 運行，辨識標籤則在背景非同步更新，達到了「畫面零卡頓」的體驗。
-    - **解析度再優化**：將預設解析度調至 **320x240**，更貼合 MobileNet 224x224 的輸入需求，並減少了影像縮放的開銷。
-3.  **模型重新訓練 (MobileNetV2 Retraining)**：
-    - 在 **Python 3.13** 環境下完成 MobileNetV2 的最新一輪訓練，並同步更新模型權重。
-4.  **GitHub 自動化同步**：
-    - 所有的「多執行緒優化版腳本」與「新模型」已同步更新至 GitHub 儲存庫。
+    - **多執行緒架構 (Threading)**：持續使用非同步處理，保證視窗畫面流暢不卡頓。
+3.  **GitHub 自動化同步**：
+    - 所有更新已同步至 `https://github.com/penny0411/HW4`。
