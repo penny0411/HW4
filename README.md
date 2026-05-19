@@ -69,28 +69,3 @@ python demo/test_mobilenet.py
   python demo/gesture_recognition_MobileNet.py
   ```
   *(註：SVM 與 MobileNet 版本需確保資料夾內有對應的訓練權重檔)*
-
----
-
-## 🍓 Raspberry Pi 4 刷機與執行步驟
-
-參考來源: [Raspberry Pi Software](https://www.raspberrypi.com/software/)
-
-1. 下載 Raspberry Pi Imager
-   ![alt text](image.png)
-2. 選擇 Raspberry Pi 4 64-bit
-   ![alt text](image-1.png)
-3. 插上讀卡機
-   ![alt text](image-2.png)
-4. 輸入主機名，供 SSH 連線使用
-   ![alt text](image-3.png)
-5. 設定地區 (首都 Taipei) 與時區 (Asia/Taipei)
-   ![alt text](image-4.png)
-6. 輸入用戶名及密碼，供 SSH 連線使用
-   ![alt text](image-5.png)
-7. 開啟 SSH 功能
-   ![alt text](image-6.png)
-8. 完成寫入
-   ![alt text](image-7.png)
-
-刷機完成後，可透過 SSH 連線進入 Raspberry Pi，克隆本專案並依照前述「快速開始」步驟安裝套件並執行辨識程式。
