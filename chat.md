@@ -73,7 +73,10 @@
 
 # 2026-05-19 開發進度總結 (Task Summary)
 
-1.  **還原基礎辨識邏輯 (Simple Finger Counting)**：
-    - **移除指縫偵測**：依照要求，移除了 MediaPipe 腳本中的 V 型與指縫判定邏輯，回歸到最直觀的手指數量計數。
-    - **維持效能優化**：雖然辨識邏輯簡化，但多執行緒與低解析度解析度的效能優化依然保留，確保使用體驗流暢。
-2.  **最新同步**：已將此版本同步至 GitHub。
+1.  **MobileNet 混合偵測強化 (Hybrid Enhancement)**：
+    - **手勢與指縫檢查**：已將 MediaPipe 的骨架偵測整合進 `gesture_recognition_MobileNet.py`。
+    - **特定組合過濾**：在進行 AI 辨識前，會先檢查手指組合（如 1.3.4 會顯示 Error）以及指縫開散程度。只有合格的手勢才會進入 MobileNet 分類。
+2.  **MediaPipe 版本還原**：
+    - 將 `gesture_recognition_mediapipe.py` 還原為最基礎的手指計數邏輯。
+3.  **效能與同步**：
+    - 所有更動均已同步至 GitHub，並維持高效能架構。

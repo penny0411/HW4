@@ -47,7 +47,7 @@ def mediapipe_worker(hands, mp_draw, mp_hands):
                         if dist_tip > dist_pip:
                             up_count += 1
                     
-                    # 3. 基礎數量判定 (恢復原本簡易邏輯)
+                    # 3. 基礎數量判定
                     if up_count == 0:
                         gesture = "Rock"
                     elif up_count == 2:
@@ -55,7 +55,6 @@ def mediapipe_worker(hands, mp_draw, mp_hands):
                     elif up_count >= 4:
                         gesture = "Paper"
                     else:
-                        # 顯示錯誤，但不再嚴格檢查指縫
                         gesture = f"Error ({up_count} fingers)"
 
             color = (0, 0, 255) if "Error" in gesture else (0, 255, 0)
